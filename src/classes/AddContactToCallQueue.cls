@@ -15,11 +15,14 @@ global class AddContactToCallQueue implements Process.Plugin
 		// authenticate with VoiceIQ
 		LoginResponse response = Connector.authenticate();
 		System.debug(JSON.serializePretty(response));
+		String authToken = response.access_token;
+		UserResponse userRes = Connector.getUser(authToken, 'voiceiq');
+		System.debug(JSON.serializePretty(userRes));
 
-		String voiceIQUserId = response.data.user.id;
-		String callQueueId = response.data.user.callQueueId;
-		String authToken = response.data.token;
-		String tenantCode = response.data.user.organisationDetails.tenantCode;
+		String voiceIQUserId = userRes.data.id;
+		String callQueueId = userRes.data.callQueueId;
+		String tenantCode = userRes.data.organisationDetails.tenantCode;
+
 
 		// add contact to the user's call queue
 		CallQueueResponse callQueue = Connector.addContactToCallQueue(voiceIQUserId, callQueueId, authToken, tenantCode, contactId);
