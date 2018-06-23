@@ -1,0 +1,6 @@
+<apex:page standardController="Contact" tabStyle="Contact" recordSetVar="SelectedContacts">
+	<flow:interview name="AddSelectedContactsToCallQueue" finishLocation="{!IF($User.UITheme == 'Theme4d' || $User.UITheme == 'Theme4t','/lightning/o/Contact/list?filterName=' + FilterId,'/003?FilterName=' + FilterId)}">
+		<apex:param name="contacts" value="{!Selected}"/>
+		<apex:param name="userId" value="{!$User.Id}"/>
+	</flow:interview>
+</apex:page>
