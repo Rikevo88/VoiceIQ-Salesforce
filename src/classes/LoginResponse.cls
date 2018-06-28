@@ -1,4 +1,4 @@
-global class LoginResponse extends Response
+global class LoginResponse
 {
 
 	public String access_token;
