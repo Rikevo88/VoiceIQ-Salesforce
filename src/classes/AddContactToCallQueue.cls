@@ -12,21 +12,8 @@ global class AddContactToCallQueue implements Process.Plugin
 		System.debug(userId);
 		System.debug(contactId);
 
-		// authenticate with VoiceIQ
-		LoginResponse response = Connector.authenticate();
-		System.debug(JSON.serializePretty(response));
-		String authToken = response.access_token;
-		UserResponse userRes = Connector.getUser(authToken, 'voiceiq');
-		System.debug(JSON.serializePretty(userRes));
-
-		String voiceIQUserId = userRes.data.id;
-		String callQueueId = userRes.data.callQueueId;
-		String tenantCode = userRes.data.organisationDetails.tenantCode;
-
-
 		// add contact to the user's call queue
-		CallQueueResponse callQueue = Connector.addContactToCallQueue(voiceIQUserId, callQueueId, authToken, tenantCode, contactId);
-		System.debug(JSON.serializePretty(callQueue));
+		CallQueueResponse callQueue = Connector.addContactToCallQueue(userId, contactId);
 
 		Map<String,Object> result = new Map<String,Object>();
 		result.put('isError', callQueue.isError);

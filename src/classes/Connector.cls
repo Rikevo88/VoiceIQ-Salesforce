@@ -14,6 +14,19 @@ global class Connector
 		public Map<String,String> headers = new Map<String,String>();
 	}
 
+	public class CallQueueBody
+	{
+		public String contactId;
+		public String scheduleType;
+		public String callTime;
+		public String callTimeEnd;
+		public CallQueueBody(String contactId, String scheduleType)
+		{
+			this.contactId = contactId;
+			this.scheduleType = scheduleType;
+		}
+	}
+
 	global static HttpResponse sendAuthRequest(VoiceIQRequest request)
 	{
 		System.debug(request);
@@ -91,43 +104,112 @@ global class Connector
 		HttpResponse res = sendRequest(request);
 		String responseStr = res.getBody();
 		ClientResponse response = (ClientResponse)handleJSONDeserialize('ClientResponse', responseStr);
+		response.setLoginResponse(loginResponse);
 		System.debug(response);
 		return response;
 	}
 
-	global static CallQueueResponse addContactToCallQueue(String voiceIQUserId, String callQueueId, String authToken, String tenantCode, String salesforceContactId)
+	/**
+	 *	@description 		Sends a contact id to VoiceIQ and adds them to the user's call queue 
+	 *						as an Unscheduled call.
+	 *	@param 				String salesforceUserId	The id of the user whos call queue will recieve the contact.
+	 *	@param 				String salesforceContactId A contact id to add to the user's call queue.
+	 */
+	global static CallQueueResponse addContactToCallQueue(String salesforceUserId, String salesforceContactId)
 	{
-		CallQueueBody callQueueBody = new CallQueueBody();
-		callQueueBody.contactId = salesforceContactId;
-		callQueueBody.scheduleType = 'UnScheduled';
+		CallQueueBody payload = new CallQueueBody(salesforceContactId, 'UnScheduled');
+
+		// authenticate with VoiceIQ
+		ClientResponse response = Connector.authenticate();
 
 		VoiceIQRequest request = new VoiceIQRequest();
-		request.endpoint = String.format('/external/api/v1/user/{0}/callqueue/{1}', new List<String>
+		request.endpoint = String.format('/external/api/v1/user/{0}/callqueue/contact', new List<String>
 		{
-			voiceIQUserId,
-			callQueueId
+			salesforceUserId
 		});
 		request.method = 'POST';
-		request.body = JSON.serialize(callQueueBody);
-		request.headers = new Map<String,String>
-		{
-			'Authorization' => 'Bearer ' + authToken,
-			'X-TENANT-CODE' => tenantCode
-		};
+		request.body = JSON.serialize(payload);
+		request.headers = setAuthenticationHeaders(response);
+		
 		HttpResponse res = sendRequest(request);
-
 		String responseStr = res.getBody();
-		return (CallQueueResponse)JSON.deserialize(responseStr, CallQueueResponse.class);
+		return (CallQueueResponse)handleJSONDeserialize('CallQueueResponse', responseStr);
 	}
 
-	public class CallQueueBody
+	/**
+	 *	@description 		Sends a list of contact ids to VoiceIQ and adds them to the user's call queue 
+	 *						as Unscheduled calls.
+	 *
+	 *	@param 				String salesforceUserId	The id of the user whos call queue will recieve the contacts.
+	 *	@param 				List<String> salesforceContactIds List of contact ids to add to the user's call queue.
+	 */
+	global static CallQueueResponse addContactsToCallQueue(String salesforceUserId, List<String> salesforceContactIds)
 	{
-		public String contactId;
-		public String scheduleType;
-		public String callTime;
-		public String callTimeEnd;
+		if(salesforceContactIds == null || salesforceContactIds.isEmpty() == true) throw new ConnectorException('No salesforce contact ids were supplied.');
+
+		List<CallQueueBody> payload = new List<CallQueueBody>();
+		for(String contactId : salesforceContactIds)
+		{
+			payload.add(new CallQueueBody(contactId, 'UnScheduled'));
+		}
+
+		// authenticate with VoiceIQ
+		ClientResponse response = Connector.authenticate();
+
+		VoiceIQRequest request = new VoiceIQRequest();
+		request.endpoint = String.format('/external/api/v1/user/{0}/callqueue/contacts', new List<String>
+		{
+			salesforceUserId
+		});
+		request.method = 'POST';
+		request.body = JSON.serialize(payload);
+		request.headers = setAuthenticationHeaders(response);
+
+		HttpResponse res = sendRequest(request);
+		String responseStr = res.getBody();
+		return (CallQueueResponse)handleJSONDeserialize('CallQueueResponse', responseStr);
 	}
 
+	global static UserResponse getUser(String authToken, String tenantCode)
+	{		
+		// authenticate with VoiceIQ
+		ClientResponse response = Connector.authenticate();
+
+		VoiceIQRequest request = new VoiceIQRequest();
+		request.endpoint = String.format('/api/v1/user/{0}', new List<String>
+		{
+			'63ceb516-b1d6-404c-8047-097e0610f0d2'
+		});
+		request.method = 'GET';
+		request.headers = setAuthenticationHeaders(response);
+
+		HttpResponse res = sendRequest(request);
+		String responseStr = res.getBody();
+		return (UserResponse)JSON.deserialize(responseStr, UserResponse.class);
+	}
+
+	/**
+	 * 	@description 		Sets the authentication headers required to communicate with VoiceIQ
+	 *
+	 *	@param 				ClientResponse response The authentication response class which holds the 
+	 *												access_token and tenantCode
+	 */
+	private static Map<String,String> setAuthenticationHeaders(ClientResponse response)
+	{
+		return new Map<String,String>
+		{
+			'Authorization' => 'Bearer ' + response.loginResponse.access_token,
+			'X-TENANT-CODE' => response.data.tenantCode
+		};
+	}
+
+	/**
+	 * 	@description 		Dynamically deserializes the json response into the specified class name and
+	 *						handles any exceptions.
+	 *
+	 *	@param 				String className the name of the class to type cast.
+	 * 	@param 				String responseStr the json to deserialize.
+	 */
 	private static Object handleJSONDeserialize(String className, String responseStr)
 	{
 		try
@@ -140,27 +222,6 @@ global class Connector
 			System.debug(ex);
 			throw new ConnectorException(ex.getMessage() + ': deserializing ' + className + ': response ' + responseStr);
 		}	
-	}
-
-	global static UserResponse getUser(String authToken, String tenantCode)
-	{
-		VoiceIQRequest request = new VoiceIQRequest();
-		request.endpoint = String.format('/api/v1/user/{0}', new List<String>
-		{
-			'63ceb516-b1d6-404c-8047-097e0610f0d2'
-		});
-		request.method = 'GET';
-		request.body = '';
-		request.headers = new Map<String,String>
-		{
-			'Authorization' => 'Bearer ' + authToken,
-			'X-Tenant-Code' => tenantCode
-		};
-		HttpResponse res = sendRequest(request);
-
-		String responseStr = res.getBody();
-		system.debug(responseStr);
-		return (UserResponse)JSON.deserialize(responseStr, UserResponse.class);
 	}
 
 }
