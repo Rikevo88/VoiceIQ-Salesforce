@@ -49,12 +49,14 @@ global class Connector
 		String requestURL = VOICEIQ_URL + request.endpoint;
 		req.setEndpoint(requestURL);
 		req.setMethod(request.method);
-		req.setBody(request.body);
+		// only set the body if it's not blank
+		if(String.isBlank(request.Body) == false) req.setBody(request.body);
 		req.setHeader('Content-Type', 'application/json');
 		for(String header : request.headers.keySet())
 		{
 			req.setHeader(header, request.headers.get(header));
 		}
+		System.debug(req);
 
 		// Send the request, and return a response
 		HttpResponse res = h.send(req);
@@ -82,7 +84,6 @@ global class Connector
 			UserInfo.getOrganizationId()
 		});
 		request.method = 'GET';
-		request.body = '';
 		request.headers = new Map<String,String>
 		{
 			'Authorization' => 'Bearer ' + loginResponse.access_token
@@ -90,28 +91,8 @@ global class Connector
 		HttpResponse res = sendRequest(request);
 		String responseStr = res.getBody();
 		ClientResponse response = (ClientResponse)handleJSONDeserialize('ClientResponse', responseStr);
+		System.debug(response);
 		return response;
-	}
-
-	global static UserResponse getUser(String authToken, String tenantCode)
-	{
-		VoiceIQRequest request = new VoiceIQRequest();
-		request.endpoint = String.format('/api/v1/user/{0}', new List<String>
-		{
-			'63ceb516-b1d6-404c-8047-097e0610f0d2'
-		});
-		request.method = 'GET';
-		request.body = '';
-		request.headers = new Map<String,String>
-		{
-			'Authorization' => 'Bearer ' + authToken,
-			'X-Tenant-Code' => tenantCode
-		};
-		HttpResponse res = sendRequest(request);
-
-		String responseStr = res.getBody();
-		system.debug(responseStr);
-		return (UserResponse)JSON.deserialize(responseStr, UserResponse.class);
 	}
 
 	global static CallQueueResponse addContactToCallQueue(String voiceIQUserId, String callQueueId, String authToken, String tenantCode, String salesforceContactId)
@@ -159,6 +140,27 @@ global class Connector
 			System.debug(ex);
 			throw new ConnectorException(ex.getMessage() + ': deserializing ' + className + ': response ' + responseStr);
 		}	
+	}
+
+	global static UserResponse getUser(String authToken, String tenantCode)
+	{
+		VoiceIQRequest request = new VoiceIQRequest();
+		request.endpoint = String.format('/api/v1/user/{0}', new List<String>
+		{
+			'63ceb516-b1d6-404c-8047-097e0610f0d2'
+		});
+		request.method = 'GET';
+		request.body = '';
+		request.headers = new Map<String,String>
+		{
+			'Authorization' => 'Bearer ' + authToken,
+			'X-Tenant-Code' => tenantCode
+		};
+		HttpResponse res = sendRequest(request);
+
+		String responseStr = res.getBody();
+		system.debug(responseStr);
+		return (UserResponse)JSON.deserialize(responseStr, UserResponse.class);
 	}
 
 }
