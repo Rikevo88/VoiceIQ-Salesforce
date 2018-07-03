@@ -1,6 +1,21 @@
-<apex:page standardController="Contact" tabStyle="Contact" recordSetVar="SelectedContacts">
-	<flow:interview name="AddSelectedContactsToCallQueue" finishLocation="{!IF($User.UITheme == 'Theme4d' || $User.UITheme == 'Theme4t','/lightning/o/Contact/list?filterName=' + FilterId,'/003?FilterName=' + FilterId)}">
+<apex:page standardController="Contact" tabStyle="Contact" recordSetVar="SelectedContacts"  id="page">
+	<apex:form >
+		<apex:actionFunction action="{!cancel}" name="doFinish" immediate="true" />
+	</apex:form>
+	<!-- Salesforce bug with using standardsetcontroller action 'cancel' in finishLocation
+		 so having to work around with action function. -->
+	<flow:interview name="AddSelectedContactsToCallQueue" id="flow">
 		<apex:param name="contacts" value="{!Selected}"/>
 		<apex:param name="userId" value="{!$User.Id}"/>
 	</flow:interview>
+	<script type="text/javascript">
+		window.onload = function()
+		{
+			document.getElementById("page:flow:i:f:pb:pbb:finish").addEventListener("click", function(event)
+			{
+				event.preventDefault();
+				doFinish();
+			});
+		}
+	</script>
 </apex:page>
