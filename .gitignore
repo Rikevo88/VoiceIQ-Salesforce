@@ -1,4 +1,6 @@
 config/*
+debug/*
 *.sublime-project
 *.sublime-workspace
+*.lnk
 src/flows/add_to_sales_rep_queue*.flow
