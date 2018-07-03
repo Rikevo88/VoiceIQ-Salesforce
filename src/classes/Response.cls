@@ -1,13 +1,13 @@
 global virtual class Response
 {
-	public String httpStatusCode;
+	public String httpStatusCode {get;set;}
 	public List<error> errors;
 	public Boolean isError;
 
-	public class error
+	global class error
 	{
-		public String errorCode;
-		public String title;
-		public String details;
+		@InvocableVariable global String errorCode;
+		@InvocableVariable global String title;
+		@InvocableVariable global String details;
 	}
 }
