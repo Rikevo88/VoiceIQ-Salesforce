@@ -14,15 +14,20 @@ global class Connector
 		public Map<String,String> headers = new Map<String,String>();
 	}
 
+	public class RemoteContacts
+	{
+		public List<CallQueueBody> remoteContacts;
+	}
+
 	public class CallQueueBody
 	{
-		public String contactId;
-		public String scheduleType;
+		public String remoteContactId;
+		public Integer scheduleType;
 		public String callTime;
 		public String callTimeEnd;
-		public CallQueueBody(String contactId, String scheduleType)
+		public CallQueueBody(String remoteContactId, Integer scheduleType)
 		{
-			this.contactId = contactId;
+			this.remoteContactId = remoteContactId;
 			this.scheduleType = scheduleType;
 		}
 	}
@@ -40,10 +45,6 @@ global class Connector
 		req.setMethod(request.method);
 		req.setBody(request.body);
 		req.setHeader('Content-Type', 'application/x-www-form-urlencoded');
-		for(String header : request.headers.keySet())
-		{
-			req.setHeader(header, request.headers.get(header));
-		}
 
 		// Send the request, and return a response
 		HttpResponse res = h.send(req);
@@ -117,7 +118,7 @@ global class Connector
 	 */
 	global static CallQueueResponse addContactToCallQueue(String salesforceUserId, String salesforceContactId)
 	{
-		CallQueueBody payload = new CallQueueBody(salesforceContactId, 'UnScheduled');
+		CallQueueBody payload = new CallQueueBody(salesforceContactId, 0);
 
 		// authenticate with VoiceIQ
 		ClientResponse response = Connector.authenticate();
@@ -143,15 +144,19 @@ global class Connector
 	 *	@param 				String salesforceUserId	The id of the user whos call queue will recieve the contacts.
 	 *	@param 				List<String> salesforceContactIds List of contact ids to add to the user's call queue.
 	 */
-	global static CallQueueResponse addContactsToCallQueue(String salesforceUserId, List<String> salesforceContactIds)
+	global static CallQueueResponse addContactsToCallQueue(String salesforceUserId, Set<String> salesforceContactIds)
 	{
 		if(salesforceContactIds == null || salesforceContactIds.isEmpty() == true) throw new ConnectorException('No salesforce contact ids were supplied.');
 
+		
 		List<CallQueueBody> payload = new List<CallQueueBody>();
 		for(String contactId : salesforceContactIds)
 		{
-			payload.add(new CallQueueBody(contactId, 'UnScheduled'));
+			payload.add(new CallQueueBody(contactId, 0));
 		}
+		RemoteContacts remoteContacts = new RemoteContacts();
+		remoteContacts.remoteContacts = payload;
+		System.debug(JSON.serialize(remoteContacts));
 
 		// authenticate with VoiceIQ
 		ClientResponse response = Connector.authenticate();
@@ -162,7 +167,7 @@ global class Connector
 			salesforceUserId
 		});
 		request.method = 'POST';
-		request.body = JSON.serialize(payload);
+		request.body = JSON.serialize(remoteContacts);
 		request.headers = setAuthenticationHeaders(response);
 
 		HttpResponse res = sendRequest(request);
