@@ -1,6 +1,6 @@
 global class CallQueueResponse extends Response
 {
-	public data data {get; set;}
+	public data data {get;set;}
 
 	public class data
 	{
@@ -38,7 +38,7 @@ global class CallQueueResponse extends Response
 		public Boolean isDeleted;
 		public String ownerId;
 		public String photoUrl;
-		//public Datetime date;
+		public Datetime createdDate;
 		public String createdById;
 		public Datetime lastModifiedDate;
 		public String lastModifiedbyId;
