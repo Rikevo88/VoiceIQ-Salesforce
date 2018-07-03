@@ -1,5 +1,6 @@
 global class ClientResponse extends Response
 {
+
 	public LoginResponse loginResponse {get; private set;}
 
 	public data data {get; set;}
@@ -17,4 +18,5 @@ global class ClientResponse extends Response
 	{
 		this.loginResponse = loginResponse;
 	}
+	
 }
