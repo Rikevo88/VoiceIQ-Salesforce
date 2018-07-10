@@ -6,6 +6,8 @@ global class Connector
 
 	private class ConnectorException extends Exception {}
 
+	private static ClientResponse clientResponse;
+
 	global class VoiceIQRequest
 	{
 		public String endpoint;
@@ -104,10 +106,10 @@ global class Connector
 		};
 		HttpResponse res = sendRequest(request);
 		String responseStr = res.getBody();
-		ClientResponse response = (ClientResponse)handleJSONDeserialize('ClientResponse', responseStr);
-		response.setLoginResponse(loginResponse);
-		System.debug(response);
-		return response;
+		clientResponse = (ClientResponse)handleJSONDeserialize('ClientResponse', responseStr);
+		clientResponse.setLoginResponse(loginResponse);
+		System.debug(clientResponse);
+		return clientResponse;
 	}
 
 	/**
@@ -121,7 +123,7 @@ global class Connector
 		CallQueueBody payload = new CallQueueBody(salesforceContactId, 0);
 
 		// authenticate with VoiceIQ
-		ClientResponse response = Connector.authenticate();
+		ClientResponse response = clientResponse == null ? Connector.authenticate() : clientResponse;
 
 		VoiceIQRequest request = new VoiceIQRequest();
 		request.endpoint = String.format('/external/api/v1/user/{0}/callqueue/contact', new List<String>
@@ -159,7 +161,7 @@ global class Connector
 		System.debug(JSON.serialize(remoteContacts));
 
 		// authenticate with VoiceIQ
-		ClientResponse response = Connector.authenticate();
+		ClientResponse response = clientResponse == null ? Connector.authenticate() : clientResponse;
 
 		VoiceIQRequest request = new VoiceIQRequest();
 		request.endpoint = String.format('/external/api/v1/user/{0}/callqueue/contacts', new List<String>
