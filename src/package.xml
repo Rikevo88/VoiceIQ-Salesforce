@@ -9,12 +9,14 @@
         <name>ApexPage</name>
     </types>
     <types>
+        <members>AddAllCampaignMembersToCallQueue</members>
         <members>AddContactToCallQueue</members>
         <members>AddSelectedContactsToCallQueue</members>
-        <members>AddSelectedContactsToCallQueue-7</members>
+        <members>Lead_Convert</members>
         <name>Flow</name>
     </types>
     <types>
+        <members>Campaign.AddToCallQueue</members>
         <members>Contact.AddToCallQueue</members>
         <name>QuickAction</name>
     </types>
@@ -24,6 +26,7 @@
         <name>RemoteSiteSetting</name>
     </types>
     <types>
+        <members>Campaign.AddToCallQueue</members>
         <members>Contact.AddSelectedToCallQueue</members>
         <members>Contact.AddToCallQueue</members>
         <name>WebLink</name>
