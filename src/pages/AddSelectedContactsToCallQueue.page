@@ -1,4 +1,4 @@
-<apex:page standardController="Contact" tabStyle="Contact" recordSetVar="SelectedContacts"  id="page">
+<apex:page standardController="Contact" tabStyle="Contact" recordSetVar="SelectedContacts" id="page">
 	<apex:form >
 		<apex:actionFunction action="{!cancel}" name="doFinish" immediate="true" />
 	</apex:form>
