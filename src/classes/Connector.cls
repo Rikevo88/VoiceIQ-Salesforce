@@ -3,6 +3,8 @@ global class Connector
 
 	private static String VOICEIQ_URL = 'https://enviqdv01apiapp.azurewebsites.net';
 	private static String VOICEIQ_AUTH_URL = 'https://enviqdv01authapp.azurewebsites.net';
+	//private static String VOICEIQ_URL = 'https://enviqst01apiapp.azurewebsites.net';
+	//private static String VOICEIQ_AUTH_URL = 'https://enviqst01authapp.azurewebsites.net';
 
 	private class ConnectorException extends Exception {}
 
@@ -120,7 +122,7 @@ global class Connector
 	 */
 	global static CallQueueResponse addContactToCallQueue(String salesforceUserId, String salesforceContactId)
 	{
-		CallQueueBody payload = new CallQueueBody(salesforceContactId, 0);
+		CallQueueBody payload = new CallQueueBody(salesforceContactId, 1);
 
 		// authenticate with VoiceIQ
 		ClientResponse response = clientResponse == null ? Connector.authenticate() : clientResponse;
@@ -154,7 +156,7 @@ global class Connector
 		List<CallQueueBody> payload = new List<CallQueueBody>();
 		for(String contactId : salesforceContactIds)
 		{
-			payload.add(new CallQueueBody(contactId, 0));
+			payload.add(new CallQueueBody(contactId, 1));
 		}
 		RemoteContacts remoteContacts = new RemoteContacts();
 		remoteContacts.remoteContacts = payload;
