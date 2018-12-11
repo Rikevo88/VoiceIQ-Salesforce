@@ -4,12 +4,12 @@ private class ClientResponseTest
 
 	@isTest static void testClientResponseCallout()
 	{
-		String clientResponseStr = '{"data": {"id": "string","userId": "string","availabilityTimeSlots": ["string"],"timezone": "string","callQueueItems": [{"id": "string","contactDetails": {"id": "string","remoteId": "string","account": {"id": "string","name": "string"},"firstName": "string","lastName": "string","title": "string","email": "string","homePhone": "string","mobilePhone": "string","phone": "string","isDeleted": true,"ownerId": "string","photoUrl": "string","createdDate": "2018-07-03T14:16:29.960Z","createdById": "string","lastModifiedDate": "2018-07-03T14:16:29.960Z","lastModifiedbyId": "string","type": "string"},"scheduleType": 0,"callTime": "2018-07-03T14:16:29.960Z","callTimeEnd": "2018-07-03T14:16:29.960Z"}],"createdDate": "2018-07-03T14:16:29.960Z","lastModifiedDate": "2018-07-03T14:16:29.960Z","type": "string"},"httpStatusCode": "string","errors": [{"errorCode": "string","title": "string","details": "string"}],"isError": true}';
+		String clientResponseStr = '{"data": {"id": "string","tenantCode": "string","name": "string","description": "string","remoteId": "string"},"httpStatusCode": "string","errors": [{"errorCode": "string","title": "string","details": "string"}],"isError": true}';
 		SingleRequestMock fakeResponse = new SingleRequestMock(
-		    200,
-		    'Complete',
-		    clientResponseStr,
-		    new Map<String,String>{ 'testheader' => 'test' }
+			200,
+			'Complete',
+			clientResponseStr,
+			new Map<String,String>{ 'testheader' => 'test' }
 		);
 		Test.setMock(HttpCalloutMock.class, fakeResponse);
 		Test.startTest();
@@ -17,5 +17,23 @@ private class ClientResponseTest
 		Test.stopTest();
 		System.assertEquals(res.data.id, 'string');
 	}
-	
+
+	@isTest static void testClientResponseCalloutFail()
+	{
+		String clientResponseStr = '{"isError": true,"errors": [{"errorCode": "string","title": "string","details": "string"}],"data": {"user": {"id": "string","displayName": "string","firstName": "string","lastName": "string","email": "string","mobilePhone": "string","username": "string","callQueueId": "string","photoUrl": "string","documentTrayInfo": {"remoteId": "string","serviceName": "string"},"organisationDetails": {"id": "string","name": "string","tenantCode": "string"},"authInfo": {"salesforceUserId": "string","salesforceUserUri": "string","instanceUrl": "string","accessToken": "string","refreshToken": "string","apiVersion": "string"},"preferences": {"callReminderSettings": {"minutesBeforeCall": 0}},"createdDate": "2018-12-10T22:33:22.640Z","lastModifiedDate": "2018-12-10T22:33:22.640Z","type": "string"}},"httpStatusCode": "string"}';
+		SingleRequestMock fakeResponse = new SingleRequestMock(
+			200,
+			'Complete',
+			clientResponseStr,
+			new Map<String,String>{ 'testheader' => 'test' }
+		);
+		Test.setMock(HttpCalloutMock.class, fakeResponse);
+		Test.startTest();
+		ClientResponse res = Connector.authenticate();
+		Test.stopTest();
+		System.assertEquals(res.isError, true);
+		res.debugErrors();
+		List<String> errors = res.getErrors();
+	}
+
 }
