@@ -33,4 +33,5 @@ global class AddContactsToCallQueue
 		@InvocableVariable(label='Contacts' description='Contact records to add the User\'s call queue.' required=true)
 		global List<Contact> contacts;
 	}
+
 }
