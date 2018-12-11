@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>Client_Id__c</fullName>
+        <defaultValue>&quot;viqapex&quot;</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Client Id</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Client_Secret__c</fullName>
+        <defaultValue>&quot;fd7ceb9c-f380-4c39-b340-83821747eb12&quot;</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>Client Secret</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Grant_Type__c</fullName>
+        <defaultValue>&quot;client_credentials&quot;</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>DeveloperControlled</fieldManageability>
+        <label>Grant Type</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>VoiceIQ_App__c</fullName>
+        <defaultValue>&quot;https://enviqst01apiapp.azurewebsites.net&quot;</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>VoiceIQ App</label>
+        <required>true</required>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>VoiceIQ_Auth__c</fullName>
+        <defaultValue>&quot;https://enviqst01authapp.azurewebsites.net&quot;</defaultValue>
+        <externalId>false</externalId>
+        <fieldManageability>SubscriberControlled</fieldManageability>
+        <label>VoiceIQ Auth</label>
+        <required>true</required>
+        <type>Url</type>
+    </fields>
+    <label>Settings</label>
+    <pluralLabel>Settings</pluralLabel>
+    <visibility>Protected</visibility>
+</CustomObject>
