@@ -9,6 +9,10 @@
         <name>ApexPage</name>
     </types>
     <types>
+        <members>Settings__mdt</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
         <members>AddAllCampaignMembersToCallQueue</members>
         <members>AddContactToCallQueue</members>
         <members>AddSelectedContactsToCallQueue</members>
@@ -21,8 +25,10 @@
         <name>QuickAction</name>
     </types>
     <types>
-        <members>VoiceIQApp</members>
-        <members>VoiceIQAuth</members>
+        <members>VoiceIQAppDev</members>
+        <members>VoiceIQAppStaging</members>
+        <members>VoiceIQAuthDev</members>
+        <members>VoiceIQAuthStaging</members>
         <name>RemoteSiteSetting</name>
     </types>
     <types>
