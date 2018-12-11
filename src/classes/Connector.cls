@@ -1,10 +1,21 @@
 global class Connector
 {
 
-	private static String VOICEIQ_URL = 'https://enviqdv01apiapp.azurewebsites.net';
-	private static String VOICEIQ_AUTH_URL = 'https://enviqdv01authapp.azurewebsites.net';
-	//private static String VOICEIQ_URL = 'https://enviqst01apiapp.azurewebsites.net';
-	//private static String VOICEIQ_AUTH_URL = 'https://enviqst01authapp.azurewebsites.net';
+	private final static String VOICEIQ_URL;
+	private final static String VOICEIQ_AUTH_URL;
+	private final static String CLIENT_ID;
+	private final static String CLIENT_SECRET;
+	private final static String GRANT_TYPE;
+
+	static 
+	{
+		Settings__mdt setting = [select Client_Id__c, Client_Secret__c, Grant_Type__c, VoiceIQ_App__c, VoiceIQ_Auth__c from Settings__mdt where DeveloperName = 'Default'];
+		VOICEIQ_URL = setting.VoiceIQ_App__c;
+		VOICEIQ_AUTH_URL = setting.VoiceIQ_Auth__c;
+		CLIENT_ID = setting.Client_Id__c;
+		CLIENT_SECRET = setting.Client_Secret__c;
+		GRANT_TYPE = setting.Grant_Type__c;
+	}
 
 	private class ConnectorException extends Exception {}
 
@@ -87,7 +98,12 @@ global class Connector
 		VoiceIQRequest request = new VoiceIQRequest();
 		request.endpoint =  '/connect/token';
 		request.method = 'POST';
-		request.body = 'client_id=viqapex&client_secret=fd7ceb9c-f380-4c39-b340-83821747eb12&grant_type=client_credentials';
+		request.body = String.format('client_id={0}&client_secret={1}&grant_type={2}', new List<String>
+		{
+			CLIENT_ID,
+			CLIENT_SECRET,
+			GRANT_TYPE
+		});
 		HttpResponse res = sendAuthRequest(request);
 		String responseStr = res.getBody();
 		LoginResponse response = (LoginResponse)handleJSONDeserialize('LoginResponse', responseStr);
@@ -179,7 +195,7 @@ global class Connector
 		return (CallQueueResponse)handleJSONDeserialize('CallQueueResponse', responseStr);
 	}
 
-	global static UserResponse getUser(String authToken, String tenantCode)
+	global static UserResponse getUser()
 	{		
 		// authenticate with VoiceIQ
 		ClientResponse response = Connector.authenticate();
